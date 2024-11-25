@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Any, List, Literal, Optional, Union, get_args
 
-from humps import camelize
 from pydantic import BaseModel, conint, root_validator, validator
 from pydantic.utils import GetterDict
 
@@ -11,7 +10,12 @@ from app.worker.task_configs import (
     TestTaskProcesses,
 )
 
-
+def camelize(s: str) -> str:
+    """
+    Converts a snake_case string to camelCase.
+    """
+    parts = s.split('_')
+    return parts[0] + ''.join(word.capitalize() for word in parts[1:])
 class Model(BaseModel):
     pass
 
@@ -421,6 +425,7 @@ class IntuneDeviceData(Model):
     is_supervised: Optional[bool] = None
     enrollment_profile_name: Optional[str] = None
 
+class Schema(BaseModel):
     class Config:
         alias_generator = camelize
-        allow_population_by_field_name = True
+        populate_by_name = True  # Pydantic will use the camelize function to automatically change field names to camelCase when it outputs data.
